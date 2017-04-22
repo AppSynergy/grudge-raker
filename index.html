@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Grudge-Raker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css?family=Asar" rel="stylesheet">
+  <style type="text/css"> body, .btn { font-family: 'Asar', serif; }</style>
+</head>
+<body>
+  <div class="container">
+    <div id="app">
+      <h1 class="my-5">Fire your Grudge-Raker!</h1>
+      <div class="card">
+        <div class="card-header">
+          <h4 class="mb-3">How many action dice?</h4>
+          <button class="btn btn-primary mr-4" v-for="die in dice"
+            v-on:click="takeActions(die)">{{ die }}</button>
+        </div>
+        <div class="card-block" v-if="rolls.length>0">
+          <em class="mr-2 mb-1 bg-faded" v-for="roll in rolls">
+            <strong>{{ roll[0] }}</strong> {{ roll[1]}}
+          </em>
+        </div>
+        <div class="card-footer" v-if="rolls.length>0">
+          <div class="row">
+            <div class="col-6">
+              <h4 class="mt-2 mb-0 text-uppercase">{{ hits }} hits, {{ hits*2 }} damage.</h4>
+            </div>
+            <div class="col col-6">
+              <button class="float-right btn btn-danger" v-on:click="clear()">clear</button>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.2.6/vue.min.js"></script>
+  <script type="text/javascript">
+    new Vue({
+      el: '#app',
+      data: {
+        dice: [1,2,3,4],
+        rolls: [],
+        hits: 0
+      },
+      methods: {
+        threePlus: function(logHit) {
+          var roll = this.randomInt(1, 6);
+          var txt = (logHit) ? 'to hit' : 'to continue';
+          this.rolls.push([roll, txt]);
+          return (roll > 2);
+        },
+        randomInt: function(min,max) {
+          return Math.floor(Math.random() * (max - min + 1)) + min;
+        },
+        rollToHit: function() {
+          if (this.threePlus(true)) this.hits += 1
+        },
+        takeActions: function(n) {
+          this.rolls.push(['Firing with '+ n + ' action dice!', '']);
+          while (n > 0) { this.takeAction(); n -= 1; }
+        },
+        takeAction: function() {
+          this.rollToHit();
+          if (this.threePlus(false)) this.takeAction();
+        },
+        clear: function() {
+          this.rolls = [];
+          this.hits = 0;
+        }
+      }
+    });
+  </script>
+</body>
+</html>
